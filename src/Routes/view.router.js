@@ -1,56 +1,13 @@
 import { Router } from "express";
-import ProductsModel from "../dao/models/products.js";
-import CartsModel from "../dao/models/carts.js";
+import { showProducts, showRealTimeProducts, showCart } from "../Controller/views.controller.js"
+import { authAdmin } from "../utils.js";
 
-const router = Router()
+const viewsRouter = Router()
 
-router.get("/",async (req,res)=>{
-    const {limit = 10, page = 1, sort, query} = req.query
-    const {docs,hasPrevPage,hasNextPage,nextPage,prevPage} = await ProductsModel.paginate(query ? {category: query} : {},{limit, page, lean: true, sort: sort ? {price:1} : {price:-1}})
-    res.render("home",{title: "Productos", 
-    productos: docs,  
-    hasPrevPage,
-    hasNextPage,
-    prevPage,
-    nextPage,
-    limit,
-    sort,
-    query,
-    script: "home.js", 
-    style: "home.css",
-    nombre: req.session.name,
-    apellido: req.session.last_name,
-    user: req.session.user,
-    email: req.session.email,
-    rol: req.session.rol
-})
-})
+viewsRouter.get("/",showProducts)
 
-router.get("/realTimeProducts",(req,res)=>{
-    res.render("realTimeProducts",{title: "Productos en tiempo real", script: "index.js"})
-})
+viewsRouter.get("/realTimeProducts",authAdmin,showRealTimeProducts)
 
-router.get("/carts/:cid",async(req,res)=>{
-    const { cid } = req.params;
-    try {
-        let carrito = await CartsModel.findOne({_id: cid }).lean()
-        if (carrito) {
-            let productos = carrito.products;
-            if(productos.length === 0){
-                res.send("El carrito está vacio")
-            }else{
-                res.render("carrito", { title: "Carrito", productos, script: "carrito.js", style: "carrito.css"});
-            }
-        } else {
-            res.send("Carrito no encontrado");
-        }
-    } catch (err) { 
-        console.log(err); 
-        res.send("Error al cargar el carrito");
-    }
-})
+viewsRouter.get("/carts/:cid",showCart) 
 
-
-
-
-export default router 
+export {viewsRouter} 

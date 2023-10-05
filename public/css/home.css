@@ -4,14 +4,19 @@
 
 .container-products{
     display: flex;
-    margin-top: 40px;
+    margin-top: 50px;
+    flex-wrap: wrap;
 }
 
 #cerrarSesion{
-    background-color: #ff0;
-    color: #fff;
-    border-radius: 4px;
+    background-color: red;
+    color: white;
+    border-radius: 5px;
     text-decoration: none;
-    margin: 120px;
-    padding: 15px;
+    margin: 100px;
+    padding: 20px;
+}
+
+#id-carrito{
+    padding: 10px;
 }
