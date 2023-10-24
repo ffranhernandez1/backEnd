@@ -4,10 +4,12 @@ import { faker } from "@faker-js/faker";
 import { generateUserErrorInfo } from "../services/errors/info.js";
 import { CustomErrors } from "../services/errors/customErrors.js";
 import { Errors } from "../services/errors/errors.js";
+import { LOGGER } from "../dao/index.js";
 
 const productsService = new ProductsRepository(PRODUCTS_DAO)
 
 async function getProducts(req,res){
+    req.logger = LOGGER
     try{
        const products = await productsService.getProducts(req,res)
        res.json({status: "Success", products})
@@ -18,12 +20,13 @@ async function getProducts(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function getProductById(req,res){
+    req.logger = LOGGER
     try{
         const {pid} = req.params
         const product = await productsService.getProductById(pid)
@@ -35,14 +38,15 @@ async function getProductById(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function saveProduct(req,res){
+    req.logger = LOGGER
     try{
-    const {title,description,code,price,stock,category,thumbnail} = req.body
+    const {title,description,code,price,stock,category,thumbnail,owner} = req.body
     if(!title || !description || !code || !price || !stock || !category || !thumbnail){
         const error = CustomErrors.generateError({
             name: "Faltan datos",
@@ -50,7 +54,7 @@ async function saveProduct(req,res){
             cause: generateUserErrorInfo({title,description,code,price,stock,category,thumbnail}),
             code: Errors.INCOMPLETE_DATA
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }else{
         const newProduct = {
@@ -62,7 +66,8 @@ async function saveProduct(req,res){
             stock : +stock,
             category,
             thumbnail,
-            quantity : 1
+            quantity : 1,
+            owner: owner
         }
         const result = await productsService.saveProduct(newProduct)
         res.status(201).json({status: "Success", result})
@@ -74,12 +79,13 @@ async function saveProduct(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function modifyProduct(req,res){
+    req.logger = LOGGER
     try{
     const {pid} = req.params
     const {title,description,code,price,stock,category,thumbnail} = req.body
@@ -90,7 +96,7 @@ async function modifyProduct(req,res){
             cause: generateUserErrorInfo({title,description,code,price,stock,category,thumbnail}),
             code: Errors.INCOMPLETE_DATA
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }else{
         const updateProduct = {
@@ -113,12 +119,13 @@ async function modifyProduct(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function deleteProduct(req,res){
+    req.logger = LOGGER
     try{
     const {pid} = req.params
     const result = await productsService.deleteProduct(pid)
@@ -130,12 +137,13 @@ async function deleteProduct(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
 
 async function modifyStockProduct(req,res){
+  req.logger = LOGGER
   const {pid} = req.params
   try{
     const response = await productsService.modifyStockProduct(pid)
@@ -147,12 +155,13 @@ async function modifyStockProduct(req,res){
         cause: err,
         code: Errors.DATABASE_ERROR
     })
-    console.log(error)
+    req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
     res.json({status: "error", error})
   }
 }
 
 async function createProducts(req,res){
+    req.logger = LOGGER
     try{
         for(let i = 0; i<100; i++){
             const newProductRandom = {
@@ -167,7 +176,6 @@ async function createProducts(req,res){
                 quantity: 1
             }
             const response = await productsService.saveProduct(newProductRandom)
-            console.log(response)
         }
         res.json({status: "Success", message: "All products inserted"})
     }catch(err){
@@ -177,7 +185,7 @@ async function createProducts(req,res){
             cause: err,
             code: Errors.DATABASE_ERROR
         })
-        console.log(error)
+        req.logger.error("Error " + JSON.stringify(error) + " " + new Date().toDateString())
         res.json({status: "error", error})
     }
 }
