@@ -1,0 +1,14 @@
+body{
+    background-color: #fff;
+}
+
+h1{
+    font-family: 'Raleway', sans-serif;
+    color: #3498;
+    text-align: center;
+}
+
+a{
+    text-decoration: none;
+    font-size: 15px;
+}

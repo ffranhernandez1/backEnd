@@ -1,4 +1,3 @@
-// import MessagesModel from "../../src/dao/models/messages.js";
 const socket = io()
 
 
@@ -74,3 +73,4 @@ socket.on("enviar-mensajes",(data)=>{
     })
     socket.emit("Nuevos-mensajes",data.length)
 })
+
